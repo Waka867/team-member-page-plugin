@@ -29,14 +29,21 @@ class team_member {
 
 // This section registers the team member post type, in addition containing behavior for when the plugin is activated
 function  tmbp_post_type_registration( ) {
-// This section registers the team member post type, as well as has behavior for when the plugin is activated
-	register_post_type( 'team_member', ['public' => 'true'] );
+	register_post_type( 'team_member', [
+		'label' 		=> 'Team Members',
+		'public' 		=> true,
+		'description' 		=> 'This refers to members of your team, business or organization.',
+		//'register_meta_box_cb' => metaboxfunction
+		'has_archive' 		=> true,
+		'delete_with_user'	=> false,
+		'show_in_menu'		=> true
+	] );
 }
 add_action( 'init', 'tmbp_post_type_registration' );
 
 function tmbp_install() {
     // trigger our function that registers the custom post type
-    post_type_registration();
+    tmbp_post_type_registration();
  
     // clear the permalinks after the post type has been registered
     flush_rewrite_rules();

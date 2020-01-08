@@ -25,24 +25,11 @@ class team_member {
 
 
 
-// Function for specifying what meta box fields will need to be created for the Team Member post type
-function tmbp_meta_boxes() {
-
-	//Add function that gets met info if it already exists
-	function tmbp_get_meta_info(){
-
-	};
-
-	//add_meta_box( 'job_role', 'Job Role',  );
-
-}
-add_action( 'add_meta_boxes_team_member', 'tmbp_meta_boxes' );
 
 
 // This section registers the team member post type, in addition containing behavior for when the plugin is activated
-function  tmbp_post_type_registration( ) {
+function  tmp_post_type_registration( ) {
 	register_post_type( 'team_member', [
-		//'label' 		=> 'Team Members',
 		'labels'		=> [
 			'name'				=> 'Team Members',
 			'singular_name'			=> 'Team Member',
@@ -74,22 +61,129 @@ function  tmbp_post_type_registration( ) {
 		],
 		'public' 		=> true,
 		'description' 		=> 'This refers to members of your team, business or organization.',
-		//'register_meta_box_cb' => metaboxfunction
+		'register_meta_box_cb' => 'tmp_meta_boxes',
 		'has_archive' 		=> true,
 		'delete_with_user'	=> false,
 		'show_in_menu'		=> true
 	] );
 }
-add_action( 'init', 'tmbp_post_type_registration' );
+add_action( 'init', 'tmp_post_type_registration' );
 
-function tmbp_install() {
+
+
+
+
+
+// Function for specifying what meta box fields will need to be created for the Team Member post type
+function tmp_meta_boxes() {
+
+	//Add function that gets meta info if it already exists
+	//function tmp_get_meta_info();
+
+	add_meta_box( 'job_role', 'Job Role', __( 'tmp_meta_box_content_cb', 'job_role' ) );
+	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
+	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
+	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
+	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
+	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
+	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
+	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
+	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
+
+}
+add_action( 'add_meta_boxes_team_member', 'tmp_meta_boxes' );
+
+
+
+
+
+
+function tmp_meta_box_content_cb( $post, $mb_name ){
+
+	var_dump( $mb_name );
+	//var_dump( $post );
+	
+	$mb	= $mb_name['id'];
+	echo $mb;
+	exit;
+
+	// Add a nonce field so we can check for it later.
+	wp_nonce_field( 'tmp_nonce', 'tbmp_nonce' );
+
+	$value = get_post_meta( $post->ID, '_tmp', true );
+
+	//var_dump( $value );
+	//exit;
+
+	echo "<input style='width:100%' id='tmp' name='tmp'>";
+	echo esc_attr( $value );
+	echo "</input>";
+
+}
+
+
+
+
+
+function tmp_save_meta_box_data( $post_id ){
+	// Check if our nonce is set.
+	if ( ! isset( $_POST['tmp_nonce'] ) ) {
+	return;
+	}
+
+	// Verify that the nonce is valid.
+	if ( ! wp_verify_nonce( $_POST['tmp_nonce'], 'tmp_nonce' ) ) {
+	return;
+	}
+
+	// If this is an autosave, our form has not been submitted, so we don't want to do anything.
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+	return;
+	}
+
+	// Check the user's permissions.
+	if ( isset( $_POST['post_type'] ) && 'page' == $_POST['post_type'] ) {
+
+	if ( ! current_user_can( 'edit_page', $post_id ) ) {
+	    return;
+	}
+
+	}
+	else {
+
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+	    return;
+	}
+	}
+
+	/* OK, it's safe for us to save the data now. */
+
+	// Make sure that it is set.
+	if ( ! isset( $_POST['tmp'] ) ) {
+	return;
+	}
+
+	// Sanitize user input.
+	$my_data = sanitize_text_field( $_POST['tmp'] );
+
+	// Update the meta field in the database.
+	update_post_meta( $post_id, '_tmp', $my_data );
+
+}
+
+
+
+
+
+
+function tmp_install() {
     // trigger our function that registers the custom post type
-    tmbp_post_type_registration();
+    tmp_post_type_registration();
  
     // clear the permalinks after the post type has been registered
     flush_rewrite_rules();
 }
-register_activation_hook( __FILE__, 'tmbp_install' );
+register_activation_hook( __FILE__, 'tmp_install' );
 
 
 
@@ -101,13 +195,13 @@ register_activation_hook( __FILE__, 'tmbp_install' );
 
 
 // This section unregisters the team member post type, as well as containing behavior for when the plugin is deactivated
-function tmbp_deactivation() {
+function tmp_deactivation() {
     // unregister the post type, so the rules are no longer in memory
     unregister_post_type( 'team_member' );
     // clear the permalinks to remove our post type's rules from the database
     flush_rewrite_rules();
 }
-register_deactivation_hook( __FILE__, 'tmbp_deactivation' );
+register_deactivation_hook( __FILE__, 'tmp_deactivation' );
 
 
 

@@ -14,17 +14,18 @@ Author URI: github.com/waka867
  */
 
 
+function tmp_starter() {
 
-class team_member {
-
-
-
-
+	wp_enqueue_script( 'script', plugin_dir_url( __FILE__ ) . 'scripts.js' );
 
 }
+add_action( 'init', 'tmp_starter' );
 
 
-function tmp_before_post( $content ) {
+
+
+
+/*function tmp_before_post( $content ) {
 
     global $post;
 
@@ -36,7 +37,7 @@ function tmp_before_post( $content ) {
 
 }
 
-add_filter( 'the_content', 'global_notice_before_post' );
+add_filter( 'the_content', 'global_notice_before_post' );i*/
 
 
 // This section registers the team member post type, in addition containing behavior for when the plugin is activated
@@ -89,18 +90,12 @@ add_action( 'init', 'tmp_post_type_registration' );
 // Function for specifying what meta box fields will need to be created for the Team Member post type
 function tmp_meta_boxes() {
 
-	//Add function that gets meta info if it already exists
-	//function tmp_get_meta_info();
-
-	add_meta_box( 'job_role', 'Job Role', __( 'tmp_meta_box_content_cb', 'job_role' ) );
-	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
-	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
-	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
-	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
-	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
-	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
-	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
-	//add_meta_box( 'job_role', 'Job Role', 'tmp_meta_box_content_cb' );
+	add_meta_box( 'tmp_job_role', 'Job Role', __( 'tmp_meta_box_content_cb', 'job_role' ) );
+	add_meta_box( 'tmp_branch', 'Branch', __( 'tmp_meta_box_content_cb', 'branch' ) );
+	add_meta_box( 'tmp_start_year', 'Year Started With Team', __( 'tmp_meta_box_content_cb', 'start_year' ) );
+	add_meta_box( 'tmp_favorite_quote', 'Favorite Quote', __( 'tmp_meta_box_content_cb', 'favorite_quote' ) );
+	add_meta_box( 'tmp_phone', 'Phone Number', __( 'tmp_meta_box_content_cb', 'phone' ) );
+	add_meta_box( 'tmp_email', 'Contact Email', __( 'tmp_meta_box_content_cb', 'email' ) );
 
 }
 add_action( 'add_meta_boxes_team_member', 'tmp_meta_boxes' );
@@ -112,24 +107,70 @@ add_action( 'add_meta_boxes_team_member', 'tmp_meta_boxes' );
 
 function tmp_meta_box_content_cb( $post, $mb_name ){
 
-	//var_dump( $mb_name );
-	//var_dump( $post );
-	
-	$mb_id	= $mb_name['id'];
-	//echo $mb;
-	//exit;
 
 	// Add a nonce field so we can check for it later.
-	wp_nonce_field( 'tmp_nonce', 'tmp_nonce' );
+	//wp_nonce_field( "tmp_nonce_" . $mb_name['id'], "tmp_nonce_" . $mb_name['id'] );
+	wp_nonce_field( "tmp_nonce", "tmp_nonce" );
+	
+	
+	$mb_id			= $mb_name['id'];
+	$value 			= get_post_meta( $post->ID, "$mb_id", true );
+	$escaped_value		= esc_attr( $value );
 
-	$value = get_post_meta( $post->ID, "$mb_id", true );
 
-	//var_dump( $value );
-	//exit;
+	// This switch generates different layouts for different inputs
+	switch( $mb_id ) {
 
-	echo "<input style='width:100%' id='tmp_$mb_id' name='tmp_$mb_id'>";
-	echo esc_attr( $value );
-	echo "</input>";
+		case "tmp_branch":
+			echo "
+			<select style='width:100%' id='" . $mb_id . "_dropdown' name='$mb_id' data-selected='$escaped_value'>	
+				<option  value=''>Select Branch</option>	
+				<option  value='atlanta'>Atlanta</option>	
+				<option  value='boston'>Boston</option>	
+				<option  value='chicago'>Chicago</option>	
+				<option  value='dc'>Washington, D.C.</option>	
+				<option  value='houston'>Houston</option>	
+				<option  value='las_vegas'>Las Vegas</option>	
+				<option  value='miami'>Miami</option>	
+				<option  value='san_francisco'>San Francisco</option>	
+				<option  value='seattle'>Seattle</option>	
+				<option  value='st_paul'>St. Paul</option>	
+			</select>
+			<script>
+				// This code updates the selected dropdown option to reflect whats in the database
+				var opList 	= document.getElementById( '" . $mb_id . "_dropdown' ).options;
+				var selVal	= document.getElementById( '" . $mb_id . "_dropdown' ).dataset.selected; 
+
+
+				for( x = 0; x < opList.length; x++ ){
+					/*console.log(  opList[x].value );
+					console.log( selVal );*/
+					
+					var va	= opList[x].value 
+
+					if( va == selVal ) {
+
+						console.log( 'almost there' );
+						opList[x].selected	= true
+						/*opList[x].defaultSelected	= true*/
+
+
+					}
+
+				}
+
+			</script>
+			";
+			break;
+
+		default:
+			echo "<input style='width:100%' id='$mb_id' name='$mb_id' value='$escaped_value'></input>";
+			break;
+
+	}
+
+
+
 
 }
 
@@ -152,11 +193,8 @@ function tmp_save_meta_box_data( $post_id ){
 
 	// Verify that the nonce is valid.
 	if ( ! wp_verify_nonce( $_POST['tmp_nonce'], 'tmp_nonce' ) ) {
-	return;
-	} else {
-		//echo "true"; //Properly shows that nonce is valid
-		//exit;
-	}
+		return;
+	} 
 
 	// If this is an autosave, our form has not been submitted, so we don't want to do anything.
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -178,22 +216,41 @@ function tmp_save_meta_box_data( $post_id ){
 	}
 	}
 
-	/* OK, it's safe for us to save the data now. */
 
-	// Make sure that it is set.
-	//echo $_POST['tmp_job_role'];//Properly shows input
+
+	//echo var_dump( $_POST );
 	//exit;
-	//
-	//
-	if ( ! isset( $_POST['tmp'] ) ) {
-	return;
+
+
+	// This section handles actually updating meta info
+	// Checks Post Data
+	/*if ( ! isset( $_POST['tmp_job_role'] ) ) {
+		return;
+	}*/
+
+	if ( !isset( $_POST ) ) {
+		return;
 	}
 
-	// Sanitize user input.
-	$my_data = sanitize_text_field( $_POST['tmp'] );
+	// List to be used for iteration and then sanitization
+	$meta_field_list	= array(
+		'tmp_job_role',
+		'tmp_branch',
+		'tmp_start_year',
+		'tmp_favorite_quote',
+		'tmp_phone',
+		'tmp_email'
+	);
 
-	// Update the meta field in the database.
-	update_post_meta( $post_id, '_tmp', $my_data );
+	foreach( $meta_field_list as $mf ) {
+		
+		$mf_sanitized = sanitize_text_field( $_POST[ "$mf" ] );
+
+		
+		// Update the meta field in the database.
+		update_post_meta( $post_id, "$mf", $mf_sanitized );
+	}
+
 
 }
 add_action( 'save_post', 'tmp_save_meta_box_data' );
@@ -228,28 +285,6 @@ function tmp_deactivation() {
     flush_rewrite_rules();
 }
 register_deactivation_hook( __FILE__, 'tmp_deactivation' );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ?>

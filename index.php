@@ -24,7 +24,19 @@ class team_member {
 }
 
 
+function tmp_before_post( $content ) {
 
+    global $post;
+
+    $tmp_content = esc_attr( get_post_meta( $post->ID, '_global_notice', true ) );
+
+    $notice = "<div class='sp_global_notice'>$tmp_content</div>";
+
+    return $notice . $content;
+
+}
+
+add_filter( 'the_content', 'global_notice_before_post' );
 
 
 // This section registers the team member post type, in addition containing behavior for when the plugin is activated
@@ -61,7 +73,7 @@ function  tmp_post_type_registration( ) {
 		],
 		'public' 		=> true,
 		'description' 		=> 'This refers to members of your team, business or organization.',
-		'register_meta_box_cb' => 'tmp_meta_boxes',
+		'register_meta_box_cb' 	=> 'tmp_meta_boxes',
 		'has_archive' 		=> true,
 		'delete_with_user'	=> false,
 		'show_in_menu'		=> true
@@ -100,22 +112,22 @@ add_action( 'add_meta_boxes_team_member', 'tmp_meta_boxes' );
 
 function tmp_meta_box_content_cb( $post, $mb_name ){
 
-	var_dump( $mb_name );
+	//var_dump( $mb_name );
 	//var_dump( $post );
 	
-	$mb	= $mb_name['id'];
-	echo $mb;
-	exit;
+	$mb_id	= $mb_name['id'];
+	//echo $mb;
+	//exit;
 
 	// Add a nonce field so we can check for it later.
-	wp_nonce_field( 'tmp_nonce', 'tbmp_nonce' );
+	wp_nonce_field( 'tmp_nonce', 'tmp_nonce' );
 
-	$value = get_post_meta( $post->ID, '_tmp', true );
+	$value = get_post_meta( $post->ID, "$mb_id", true );
 
 	//var_dump( $value );
 	//exit;
 
-	echo "<input style='width:100%' id='tmp' name='tmp'>";
+	echo "<input style='width:100%' id='tmp_$mb_id' name='tmp_$mb_id'>";
 	echo esc_attr( $value );
 	echo "</input>";
 
@@ -126,14 +138,24 @@ function tmp_meta_box_content_cb( $post, $mb_name ){
 
 
 function tmp_save_meta_box_data( $post_id ){
+
+	//var_dump( $post_id ); //Properly dumps post id
+	//echo $_POST['tmp_nonce']; //Properly dumps nonce
+	//exit;
+
+
 	// Check if our nonce is set.
 	if ( ! isset( $_POST['tmp_nonce'] ) ) {
 	return;
 	}
 
+
 	// Verify that the nonce is valid.
 	if ( ! wp_verify_nonce( $_POST['tmp_nonce'], 'tmp_nonce' ) ) {
 	return;
+	} else {
+		//echo "true"; //Properly shows that nonce is valid
+		//exit;
 	}
 
 	// If this is an autosave, our form has not been submitted, so we don't want to do anything.
@@ -159,6 +181,10 @@ function tmp_save_meta_box_data( $post_id ){
 	/* OK, it's safe for us to save the data now. */
 
 	// Make sure that it is set.
+	//echo $_POST['tmp_job_role'];//Properly shows input
+	//exit;
+	//
+	//
 	if ( ! isset( $_POST['tmp'] ) ) {
 	return;
 	}
@@ -170,7 +196,7 @@ function tmp_save_meta_box_data( $post_id ){
 	update_post_meta( $post_id, '_tmp', $my_data );
 
 }
-
+add_action( 'save_post', 'tmp_save_meta_box_data' );
 
 
 

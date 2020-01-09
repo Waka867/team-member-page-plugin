@@ -14,6 +14,18 @@ Author URI: github.com/waka867
  */
 
 
+
+
+$plugin_path	= dirname( __FILE__ );
+//exit;
+
+
+
+include $plugin_path . '/tmp_list_page.php';
+
+
+
+
 function tmp_starter() {
 
 	wp_enqueue_script( 'script', plugin_dir_url( __FILE__ ) . 'scripts.js' );
@@ -292,6 +304,9 @@ function tmp_list_generator(){
 
 
 	var_dump( $tmp_posts );
+
+
+	testEcho( 'Derp' );
 
 }
 

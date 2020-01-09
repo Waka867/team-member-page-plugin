@@ -273,6 +273,29 @@ register_activation_hook( __FILE__, 'tmp_install' );
 
 
 
+// Add shortcode that can be added to a page to display the team member list
+add_shortcode( 'tmp_list', 'tmp_list_generator' );
+function tmp_list_generator(){
+
+	echo "<h1>TEAM MEMBER PLUGIN</h1>";
+
+	$tmp_posts = get_posts( [
+		// Limits plugin to loading 100 team members, unlikely for someone to put that many people on a page
+		'numberposts' 	=> 100,
+		'post_type'	=> 'team_member',
+		'post_status'	=> array( 
+			'publish',
+			'private'
+		)
+	
+	] );
+
+
+	var_dump( $tmp_posts );
+
+}
+
+
 
 
 

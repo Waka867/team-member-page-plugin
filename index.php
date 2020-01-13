@@ -52,6 +52,9 @@ add_action( 'init', 'tmp_starter' );
 add_filter( 'the_content', 'global_notice_before_post' );i*/
 
 
+add_theme_support( 'post-thumbnails' );
+
+
 // This section registers the team member post type, in addition containing behavior for when the plugin is activated
 function  tmp_post_type_registration( ) {
 	register_post_type( 'team_member', [
@@ -82,9 +85,10 @@ function  tmp_post_type_registration( ) {
 			'item_published_privately'	=> 'Team Member Profile Published',
 			'item_reverted_to_draft'	=> 'Team Member Profile Reverted To Draft',
 			'item_scheduled'		=> 'Team Member Profile Scheduled',
-			'item_updated'			=> 'Team Member Profile Updated'
+			'item_updated'			=> 'Team Member Profile Updated',
 		],
 		'public' 		=> true,
+		'supports'		=> array( 'thumbnail', 'description', 'title', 'editor', 'revisions' ),
 		'description' 		=> 'This refers to members of your team, business or organization.',
 		'register_meta_box_cb' 	=> 'tmp_meta_boxes',
 		'has_archive' 		=> true,
@@ -303,10 +307,13 @@ function tmp_list_generator(){
 	] );
 
 
-	var_dump( $tmp_posts );
+	//var_dump( $tmp_posts );
+
+	foreach( $tmp_posts as $value ){
+		tmp_profile_page_builder( $value );
+	}
 
 
-	testEcho( 'Derp' );
 
 }
 

@@ -25,7 +25,7 @@ include $plugin_path . '/tmp_list_page.php';
 
 
 
-
+// This function grabs the script.js file for use later
 function tmp_starter() {
 
 	wp_enqueue_script( 'script', plugin_dir_url( __FILE__ ) . 'scripts.js' );
@@ -48,11 +48,82 @@ add_action( 'init', 'tmp_starter' );
     return $notice . $content;
 
 }
-
 add_filter( 'the_content', 'global_notice_before_post' );i*/
 
 
+
+
+
+
+
+
+// Theme support has to be added for thumbnails just in case the current theme does not already support it. Profile pics are handled by thumbnail functionality
 add_theme_support( 'post-thumbnails' );
+
+
+
+
+
+
+
+
+
+
+
+
+// This code generates a submenu for the Team Members plugin that will handle profile render order
+function tmp_render_order_submenu_html(){
+	// check user capabilities
+	if (!current_user_can('manage_options')) {
+		return;
+ 	}
+	
+ 
+?>
+	<div class="wrap">
+		<h1><?= esc_html(get_admin_page_title()); ?></h1>
+		<form action="options.php" method="post">
+		<h1>This is where we echo out profiles by order, let users drag-and-drop rearrange, then save that new order (somehow)</h1>
+<?php
+		// output security fields for the registered setting "wporg_options"
+		//settings_fields('wporg_options');
+		// output setting sections and their fields
+		// (sections are registered for "wporg", each field is registered to a specific section)
+		//do_settings_sections('wporg');
+		// output save settings button
+		//submit_button('Save Settings');
+?>
+		</form>
+	</div>
+<?php
+}
+
+
+function tmp_render_order_submenu()
+{
+
+	add_submenu_page(
+		'edit.php?post_type=team_member',
+		'Team Member Order',
+		'Member Order',
+		'manage_options',
+		'tmp_render_order',
+		'tmp_render_order_submenu_html'
+	);
+}
+add_action('admin_menu', 'tmp_render_order_submenu');
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // This section registers the team member post type, in addition containing behavior for when the plugin is activated
@@ -112,6 +183,7 @@ function tmp_meta_boxes() {
 	add_meta_box( 'tmp_favorite_quote', 'Favorite Quote', __( 'tmp_meta_box_content_cb', 'favorite_quote' ) );
 	add_meta_box( 'tmp_phone', 'Phone Number', __( 'tmp_meta_box_content_cb', 'phone' ) );
 	add_meta_box( 'tmp_email', 'Contact Email', __( 'tmp_meta_box_content_cb', 'email' ) );
+	add_meta_box( 'tmp_order', 'Display Order', __( 'tmp_meta_box_content_cb', 'order' ) );
 
 }
 add_action( 'add_meta_boxes_team_member', 'tmp_meta_boxes' );
@@ -120,12 +192,9 @@ add_action( 'add_meta_boxes_team_member', 'tmp_meta_boxes' );
 
 
 
-
+// This function generates meta box fields, field type and behavior
 function tmp_meta_box_content_cb( $post, $mb_name ){
-
-
 	// Add a nonce field so we can check for it later.
-	//wp_nonce_field( "tmp_nonce_" . $mb_name['id'], "tmp_nonce_" . $mb_name['id'] );
 	wp_nonce_field( "tmp_nonce", "tmp_nonce" );
 	
 	
@@ -255,7 +324,8 @@ function tmp_save_meta_box_data( $post_id ){
 		'tmp_start_year',
 		'tmp_favorite_quote',
 		'tmp_phone',
-		'tmp_email'
+		'tmp_email',
+		'tmp_order'
 	);
 
 	foreach( $meta_field_list as $mf ) {
@@ -316,6 +386,22 @@ function tmp_list_generator(){
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

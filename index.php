@@ -32,7 +32,7 @@ function tmp_starter() {
 	wp_enqueue_script( 'script', plugin_dir_url( __FILE__ ) . 'scripts.js' );
 
 }
-add_action( 'init', 'tmp_starter' );
+add_action( 'wp_enqueue_scripts', 'tmp_starter' );
 
 
 
@@ -67,15 +67,7 @@ add_theme_support( 'post-thumbnails' );
 
 
 
-
-
-
-
-
-
-
-function tmp_render_order_submenu()
-{
+function tmp_render_order_submenu() {
 
 	add_submenu_page(
 		'edit.php?post_type=team_member',
@@ -85,14 +77,9 @@ function tmp_render_order_submenu()
 		'tmp_render_order',
 		'tmp_render_order_submenu_html'
 	);
+
 }
-add_action('admin_menu', 'tmp_render_order_submenu');
-
-
-
-
-
-
+add_action( 'admin_menu', 'tmp_render_order_submenu' );
 
 
 
@@ -361,17 +348,6 @@ function tmp_list_generator(){
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

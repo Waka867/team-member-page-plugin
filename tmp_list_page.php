@@ -39,7 +39,7 @@ function tmp_profile_page_builder( $x ) {
 	// REMINDER: Make sure to late escape right as variable is being called.
 	echo "
 		<div id='team-member-$ID' class='' style='text-align: center;'>
-			<img src='" . esc_html( $post_thumbnail_url ) . "' style='width: 33vw;' />
+			<img src='" . esc_url( $post_thumbnail_url ) . "' style='width: 33vw;' />
 			<h3>" . esc_html( $post_title ) . "</h3>
 			<h5><em>" . esc_html( $job_role ) . esc_html( $branch ) . " Office</em></h5>
 			<p>" . esc_html( $post_content ) . "</p>
